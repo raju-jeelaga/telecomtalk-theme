@@ -1,7 +1,103 @@
 <?php
-/**
+function telecomtalk_videos_page() {
+   	add_menu_page( 
+        __( 'Video Settings', 'textdomain' ),
+        'Videos Option',
+        'manage_options',
+        'tctvideos_settings',
+        'telecomtalk_videos_html',
+        '',
+        6
+    );
 
- */
+    add_action( 'admin_init', 'telecomtalk_video_settings' );
+}
+add_action("admin_menu", "telecomtalk_videos_page");
+
+function telecomtalk_video_settings() {
+	for($i=1;$i<=3;$i++){
+		$video_title = "video_title_".$i;
+		$cover_image = "image_url_".$i;
+		$video_link = "video_link_".$i;
+		$attachment_id = "attachment_id_".$i;
+		register_setting( 'tctvideo_settings', $video_title );
+		register_setting( 'tctvideo_settings', $cover_image );
+		register_setting( 'tctvideo_settings', $video_link );
+		register_setting( 'tctvideo_settings', $attachment_id );
+	}
+}
+
+function telecomtalk_videos_html(){
+	?>
+	<div class="wrap">
+	<h1><?php echo esc_html( get_admin_page_title() ); ?></h1>
+		<form action="options.php" method="post" name="tctvideos" enctype="multipart/form-data" class="tctvideos" id="tctvideos">
+			<?php 
+			settings_fields( 'tctvideo_settings' );
+			do_settings_sections( 'tctvideo_settings' );
+			?>
+			<table class="form-table">
+				<?php
+				for($i=1;$i<=3;$i++){
+					$video_title = "video_title_".$i;
+					$cover_image = "image_url_".$i;
+					$video_link = "video_link_".$i;
+					$attachment_id = "attachment_id_".$i;
+					if(!empty(get_option($attachment_id)) ){
+						$attachment = true;
+					}else{
+						$attachment = false;
+					}
+					?>
+			    <tr valign="top">
+			    <th scope="row">Video Title <?php echo $i;?></th>
+			    <td><input type="text" name="<?php echo $video_title;?>" value="<?php echo esc_attr( get_option($video_title) ); ?>" size="50"/>
+			    </td>
+			    </tr>
+			    <tr valign="top">
+			    <th scope="row">Video Cover Image <?php echo $i;?></th>
+			    <td>
+			    	<div class="upload_file_data">
+				    	<input type="text" class="image_path" name="<?php echo $cover_image;?>" value="<?php echo esc_attr( get_option($cover_image) ); ?>" size="50" readonly/>
+				    	<input type="hidden" class="attachment_id" name="<?php echo $attachment_id;?>" value="<?php echo esc_attr( get_option($attachment_id) ); ?>" />
+				    	<input type="button" value="Upload Image" class="upload_image button-primary" class="upload_image"/>
+				    	<div class="show_upload_preview">
+					        <?php if($attachment){
+					        ?>
+					        <img src="<?php echo esc_attr(get_option($cover_image)) ; ?>" width="300px" height="200px">
+					        <input type="button" name="remove" value="Remove Image" class="button-primary remove_image"/>
+					        <?php } ?>
+					    </div>
+				    </div>
+			    </td>
+			    </tr>
+			    <tr valign="top">
+			    <th scope="row">Video Link <?php echo $i;?></th>
+			    <td><input type="text" name="<?php echo $video_link;?>" value="<?php echo esc_attr( get_option($video_link) ); ?>" size="50"/>
+			    </td>
+			    </tr>
+			    <tr><td colspan="2"><hr></td></tr>
+				<?php } ?>
+			</table>
+			<?php submit_button(); ?>
+		</form>
+	</div>
+
+	<?php
+}
+function media_uploader_enqueue() {
+    wp_enqueue_media();
+    wp_enqueue_script('tct-media-uploader');
+    //wp_enqueue_style( 'stylesheet', plugins_url( 'stylesheet.css', __FILE__ ));
+}
+add_action('admin_enqueue_scripts', 'media_uploader_enqueue');
+
+add_filter('comment_form_default_fields', 'tct_unset_url_field');
+function tct_unset_url_field($fields){
+    if(isset($fields['url']))
+       unset($fields['url']);
+       return $fields;
+}
 add_filter('comment_form_default_fields', 'telecomtalk_comments_custom_fields');
 function telecomtalk_comments_custom_fields($fields) {
 	$fields[ 'city' ] = '<p class="comment-form-city">'.
@@ -108,7 +204,7 @@ function telecomtalk_custom_box_html($post)
     	</tr>
     	<tr class="hightlight_fields" style="display:<?php echo $heightlights;?>;">
     		<td style="width:30%;"><label for="wporg_field">Highlights Heading</label></td>
-    		<td style="width:70%;"><input type="text" name="highlights_heading" class="highlights_heading" value="<?php echo $tct_fields['highlights_heading'];?>" style="width:100%"></td>
+    		<td style="width:70%;"><input type="text" name="highlights_heading" class="highlights_heading" value="<?php echo ($tct_fields['highlights_heading']?$tct_fields['highlights_heading']:'Highlights');?>" style="width:100%"></td>
     	</tr>
     	<tr class="hightlight_fields" style="display:<?php echo $heightlights;?>;">
     		<td style="width:30%;"><label for="wporg_field">Heading 1</label></td>
@@ -122,7 +218,7 @@ function telecomtalk_custom_box_html($post)
     		<td style="width:30%;"><label for="wporg_field">Heading 3</label></td>
     		<td style="width:70%;"><input type="text" name="heading_3" class="heading_3" value="<?php echo $tct_fields['heading_3'];?>" style="width:100%"></td>
     	</tr>
-    	<tr class="hightlight_fields" style="display:<?php echo $heightlights;?>;">
+    	<!-- <tr class="hightlight_fields" style="display:<?php echo $heightlights;?>;">
     		<td style="width:30%;"><label for="wporg_field">Heading 4</label></td>
     		<td style="width:70%;"><input type="text" name="heading_4" class="heading_4" value="<?php echo $tct_fields['heading_4'];?>" style="width:100%"></td>
     	</tr>
@@ -133,7 +229,7 @@ function telecomtalk_custom_box_html($post)
     	<tr class="hightlight_fields" style="display:<?php echo $heightlights;?>;">
     		<td style="width:30%;"><label for="wporg_field">Heading 6</label></td>
     		<td style="width:70%;"><input type="text" name="heading_6" class="heading_6" value="<?php echo $tct_fields['heading_6'];?>" style="width:100%"></td>
-    	</tr>
+    	</tr> -->
     </table>
     <script type="text/javascript">
     	jQuery(document).ready(function($){
@@ -198,6 +294,31 @@ function telecomtalk_widgets_init(){
 }
 add_action( 'widgets_init', 'telecomtalk_widgets_init' );
 
+add_action('wp_ajax_commentsloadmore', 'tct_comments_loadmore_handler');
+add_action('wp_ajax_nopriv_commentsloadmore', 'tct_comments_loadmore_handler'); 
+ 
+function tct_comments_loadmore_handler(){
+	global $post;
+	$post_data = get_post( $_POST['post_id'] );
+	setup_postdata( $post_data );
+	
+	$comments = get_comments(array(
+            'post_id' => $_POST['post_id'],
+            'status' => 'approve' //Change this to the type of comments to be displayed
+        ));
+ 
+    //Display the list of comments
+    wp_list_comments(array(
+        'walker' => new Telecomtalk_Walker_Comment(),
+        'style' => 'div',
+        'short_ping' => true,
+        'avatar_size' => 120,
+        'page' => $_POST['cpage'], // current comment page
+		'per_page' => get_option('comments_per_page'),
+        'reverse_top_level' => true //Show the oldest comments at the top of the list
+    ), $comments);
+	die;
+}
 if ( ! function_exists( 'telecom_talk_setup' ) ) :
 
 	add_action('wp_enqueue_scripts', 'telecom_frontend_script');
@@ -205,6 +326,18 @@ if ( ! function_exists( 'telecom_talk_setup' ) ) :
 	function telecom_frontend_script(){
 		wp_enqueue_style('font-awesome.min', get_template_directory_uri() .'/css/all.css');
 		wp_enqueue_style( 'telecom-style', get_stylesheet_uri() );
+		wp_register_script( 'load_more_comments', get_template_directory_uri() . '/js/load-more-comments.js' );
+		
+		$local_array = array(
+		    'ajax_url' => admin_url('admin-ajax.php'),
+		    'post_id' => get_the_ID(),
+		);
+
+		wp_localize_script( 'load_more_comments', 'tctobj', $local_array );
+		wp_enqueue_script( 'load_more_comments' );
+		if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
+			wp_enqueue_script( 'comment-reply' );
+		}
 	}
 
 	function telecom_talk_setup() {
@@ -253,12 +386,68 @@ endif;
 
 add_action( 'after_setup_theme', 'telecom_talk_setup' );
 
+function telecomtalk_is_comment_by_post_author( $comment = null ) {
+
+	if ( is_object( $comment ) && $comment->user_id > 0 ) {
+
+		$user = get_userdata( $comment->user_id );
+		$post = get_post( $comment->comment_post_ID );
+
+		if ( ! empty( $user ) && ! empty( $post ) ) {
+
+			return $comment->user_id === $post->post_author;
+
+		}
+	}
+	return false;
+
+}
+function telecomtalk_theme_comment($comment, $args, $depth){
+	 $GLOBALS['comment'] = $comment; 
+	 //print_r($comment);
+	 //die;
+	 $city = get_comment_meta( $comment->comment_ID, 'city', true );
+	 ?>
+    <div class="cmts">
+		<div class="cmts-athr-img">
+			<?php echo get_avatar( $comment, 32 ); ?>
+		</div>
+		<div class="cmts-cntn">
+			<h4>
+				<?php  echo get_comment_author_link( $comment->comment_ID );?>
+				<span class="city-name"><?php echo $city;?></span>
+			</h4>
+			<?php if ($comment->comment_approved == '0') : ?>
+                <em><php _e('Your comment is awaiting moderation.') ?></em><br />
+            <?php endif; ?>
+			<p>
+				<?php echo $comment->comment_content;?>
+			</p>
+			<div class="rght-prt">
+				<a class="lk-dlk"href="#">Like</a>
+				<!-- <a class="rply"href="#">Reply</a> -->
+				<?php comment_reply_link(array_merge( $args, array('depth' => $depth, 'max_depth' => $args['max_depth']))) ?>
+			</div>
+		</div>
+	</div>
+<?php
+}
+require get_template_directory() . '/includes/class-telecomtalk-walker-comment.php';
 // Google Fonts
+add_filter('tct_like_dislike_html',"tct_add_like_dilike_text_after",10,1);
+function tct_add_like_dilike_text_after($like_dislike_html){
+	$like_dislike_html = preg_replace('/<a\shref="(.*?)"(.*?)>\s+<i(.*?)><\/i>\s+<\/a>/s', '<a href="$1"$2><i$3></i> Like</a>', $like_dislike_html);
+	return $like_dislike_html;
+}
 
 function telecomtalk_google_fonts() {
 	wp_enqueue_style('googleFonts',
 		//'https://fonts.googleapis.com/css?family=Montserrat:300,400,500,600,700,800,900');
 		'https://fonts.googleapis.com/css2?family=Open+Sans+Condensed:ital,wght@0,300;0,700;1,300&display=swap');
+	}
+	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
+		wp_enqueue_script( 'comment-reply' );
+		wp_enqueue_script( 'tct-comments-script', get_theme_file_uri( '/assets/js/commnet-quote.js' ), array( 'jquery' ), '', true );
 	}
 add_action('wp_enqueue_scripts', 'telecomtalk_google_fonts');
 

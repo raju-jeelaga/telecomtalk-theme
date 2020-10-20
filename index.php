@@ -74,7 +74,7 @@ get_header(); ?>
                                 <h5 class="authr-left">By
                                     <span class="athr-nm">Zari Ali</span>
                                     <span class="athr-dt">March 13th, 2016</span>
-                                    <a class="athr-cmts" href="#">0</a>
+                                    <a class="athr-cmts" href="<?php echo get_comments_link( $post['ID'] );?>" target="_blank"><?php echo get_comments_number($post['ID']);?></a>
                                 </h5>
                                 <ul class="authr-rght">
                                     <li class="st"><a href="#"><i class="fab fa-twitter"></i></a></li>
@@ -604,7 +604,7 @@ get_header(); ?>
                                         <h5 class="authr-left">By
                                             <span class="athr-nm"><?php the_author(); ?></span>
                                             <span class="athr-dt"><?php echo get_the_date( 'M dS Y', get_the_ID() ); ?></span>
-                                            <a class="athr-cmts" href="#">0</a>
+                                            <a class="athr-cmts" href="<?php echo get_comments_link();?>" target="_blank"><?php echo get_comments_number();?></a>
                                         </h5>
                                         <ul class="authr-rght">
                                             <li class="st"><a href="#"><i class="fab fa-twitter"></i></a></li>
