@@ -1,36 +1,21 @@
 <?php
-/**
- * The template for displaying all single posts.
- *
- * @link https://developer.wordpress.org/themes/basics/template-hierarchy/#single-post
- *
- * @package Astra
- * @since 1.0.0
+/*
+ * Template Name: Full Width No Ads Template
+ * Template Post Type: post
  */
-
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly.
-}
-
-get_header(); 
-
+get_header();
+// Start the Loop.
 ?>
-
-<div class="wrap">
-	<div id="primary" class="content-area grt">
-		<div class="container">
-			<main id="main" class="site-main" role="main">
-				<div class="main-cnt">
-					<div class="left-part">
-			<?php
-			// Start the Loop.
-				while ( have_posts() ) :
-					the_post();
-
-					get_template_part( 'template-parts/content/content', get_post_type() );
-					?>
+		<div class="templ-pages full-width">
+			<div class="container">
+				<main id="main" class="site-main" role="main">
+					<div class="main-cnt">
+						<div class="left-part">
+						<?php while ( have_posts() ) :
+							the_post();
+							get_template_part( 'template-parts/content/content', 'full-width' );
+							?>
 						</div><!-- /.left-part -->
-						<?php get_sidebar();?>
 					</div>
 					<div class="comment-wrap">
 						<h2>Leave a Comment</h2>
@@ -49,11 +34,8 @@ get_header();
 						)
 					);
 
-				endwhile; // End the loop.
-			?>
-			</main><!-- #main -->
-		</div>
-	</div><!-- #primary -->
-	
-</div><!-- .wrap -->
+					endwhile; // End the loop. ?>
+				</main>
+			</div><!-- /.container -->
+		</div><!-- /.templ-pages -->
 <?php get_footer(); ?>

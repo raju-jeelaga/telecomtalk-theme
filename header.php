@@ -32,6 +32,14 @@
 	<!-- Chrome, Firefox OS and Opera -->
 	<meta name="theme-color" content="#003f76">
 	<link rel="profile" href="http://gmpg.org/xfn/11">
+	<?php 
+	if(is_page_template( 'templates/state-template.php' )){
+		?>
+		<title><?php wp_title(''); ?></title>
+		<?php
+	}
+	?>
+	
 	<?php do_action("tt_show_metatags"); ?>	
 	<?php wp_head(); ?>
 

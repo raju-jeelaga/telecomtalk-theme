@@ -52,14 +52,15 @@ if ( post_password_required() ) {
 		</div><!-- .comments-header -->
 
 		<div class="comments-inner section-inner thin max-percentage">
-			<?php 
+			<?php
+			$cpage = get_query_var('cpage') ? get_query_var('cpage') : 1;
 			$comment_form_display = 'block';
 				if ( comments_open() || pings_open() ) {
 
 					if ( $comments ) {
 						echo '<hr class="styled-separator is-style-wide" aria-hidden="true" />';
 					}
-					if(get_comments_number()){
+					if(get_comments_number() &&  $cpage > 1){
 						$comment_form_display = 'none';
 					}
 					echo '<div class="tct-comment-form" style="display:'.$comment_form_display.';">';
@@ -106,18 +107,31 @@ if ( post_password_required() ) {
 				// 	)
 				// );
 				//echo get_query_var('cpage');
-				$cpage = get_query_var('cpage') ? get_query_var('cpage') : 1;
- 
+				$cmt_author_name = '';
+ 				$auth_comment = get_comments( array( 'post_id' => get_the_ID() ) );
+ 				foreach ( $auth_comment as $comment ) :
+				    $cmt_author_name = $comment->comment_author;
+				    break;
+				endforeach;
 				if( $cpage > 1 ) {
 					?>
-					<div style="text-align: center;">
-						<button class="load-more-comments" id="load-more-comments">View Comments (<?php echo get_comments_number();?>)</button>
+					<div style="text-align: center;background-color:#cccccc;padding:20px;">
+						<span class="load-more-comments" id="load-more-comments"><?php echo get_comments_number();?> Comments from <?php echo $cmt_author_name;?> and more</span>
 					</div>
 					<script>
 						var parent_post_id = <?php echo get_the_ID();?>;
 						var cpage = <?php echo $cpage;?>;
 					</script>
 					<?php 
+				}else{
+					wp_list_comments(
+						array(
+							'walker'      => new Telecomtalk_Walker_Comment(),
+							'avatar_size' => 120,
+							'style'       => 'div',
+							'short_ping' => true,
+						)
+					);
 				}
 
 				if ( $comment_pagination ) {
@@ -132,7 +146,6 @@ if ( post_password_required() ) {
 					<nav class="comments-pagination pagination<?php echo $pagination_classes; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static output ?>" aria-label="<?php esc_attr_e( 'Comments', 'twentytwenty' ); ?>">
 						<?php echo wp_kses_post( $comment_pagination ); ?>
 					</nav>
-
 				<?php
 				}
 			}

@@ -87,7 +87,8 @@ function telecomtalk_videos_html(){
 }
 function media_uploader_enqueue() {
     wp_enqueue_media();
-    wp_enqueue_script('tct-media-uploader');
+    //wp_enqueue_script('tct-media-uploader');
+    wp_enqueue_script( 'tct-media-uploader', get_template_directory_uri() . '/js/media-uploader.js', array(), '1.0.0', true );
     //wp_enqueue_style( 'stylesheet', plugins_url( 'stylesheet.css', __FILE__ ));
 }
 add_action('admin_enqueue_scripts', 'media_uploader_enqueue');
@@ -150,8 +151,7 @@ function telecomtalk_comment_edit_metafields( $comment_id ) {
 	endif;
 }
 
-function telecomtalk_add_custom_box()
-{
+function telecomtalk_add_custom_box(){
     $screens = ['post'];
     foreach ($screens as $screen) {
         add_meta_box(
@@ -163,8 +163,7 @@ function telecomtalk_add_custom_box()
     }
 }
 add_action('add_meta_boxes', 'telecomtalk_add_custom_box');
-function telecomtalk_custom_box_html($post)
-{
+function telecomtalk_custom_box_html($post){
 	$tct_fields = get_post_meta( $post->ID, 'telecomtalk_custom_fields', true );
 	$sub_heading = 'none';
 	if($tct_fields['enable_sub_heading']){
@@ -190,6 +189,7 @@ function telecomtalk_custom_box_html($post)
     </style>
 
     <table class="form-table">
+    	
     	<tr>
     		<td style="width:30%;"><label for="wporg_field">Enable Sub Heading</label></td>
     		<td style="width:70%;"><label class="switch"><input type="checkbox" id="enable_sub_heading" name="enable_sub_heading" value="<?php echo ($tct_fields['enable_sub_heading']) ? '1':'0';?>" <?php echo ($tct_fields['enable_sub_heading']) ? 'checked':'';?>><span class="slider round"></span></label></td>
@@ -218,21 +218,10 @@ function telecomtalk_custom_box_html($post)
     		<td style="width:30%;"><label for="wporg_field">Heading 3</label></td>
     		<td style="width:70%;"><input type="text" name="heading_3" class="heading_3" value="<?php echo $tct_fields['heading_3'];?>" style="width:100%"></td>
     	</tr>
-    	<!-- <tr class="hightlight_fields" style="display:<?php echo $heightlights;?>;">
-    		<td style="width:30%;"><label for="wporg_field">Heading 4</label></td>
-    		<td style="width:70%;"><input type="text" name="heading_4" class="heading_4" value="<?php echo $tct_fields['heading_4'];?>" style="width:100%"></td>
-    	</tr>
-    	<tr class="hightlight_fields" style="display:<?php echo $heightlights;?>;">
-    		<td style="width:30%;"><label for="wporg_field">Heading 5</label></td>
-    		<td style="width:70%;"><input type="text" name="heading_5" class="heading_5" value="<?php echo $tct_fields['heading_5'];?>" style="width:100%"></td>
-    	</tr>
-    	<tr class="hightlight_fields" style="display:<?php echo $heightlights;?>;">
-    		<td style="width:30%;"><label for="wporg_field">Heading 6</label></td>
-    		<td style="width:70%;"><input type="text" name="heading_6" class="heading_6" value="<?php echo $tct_fields['heading_6'];?>" style="width:100%"></td>
-    	</tr> -->
     </table>
     <script type="text/javascript">
     	jQuery(document).ready(function($){
+    		
 	        $('#enable_sub_heading').click(function(){
 	            if($(this).prop("checked") == true){
 	                $(this).val("1");
@@ -258,9 +247,8 @@ function telecomtalk_custom_box_html($post)
     
     <?php
 }
-function telecomtalk_save_postdata($post_id)
-{
-	//enable_sub_heading,sub_heading,enable_hightlights,highlights_heading,heading_1
+function telecomtalk_save_postdata($post_id){
+	//enable_sub_heading,sub_heading,enable_hightlights,highlights_heading,heading_1 
 	$post_data['enable_sub_heading'] = isset($_POST['enable_sub_heading'])? $_POST['enable_sub_heading']:''; 
 	$post_data['sub_heading'] = isset($_POST['sub_heading'])? $_POST['sub_heading']:''; 
 	$post_data['enable_hightlights'] = isset($_POST['enable_hightlights'])? $_POST['enable_hightlights']:''; 
@@ -289,8 +277,17 @@ function telecomtalk_widgets_init(){
 			'after_widget'  => '</section>',
 			'before_title'  => '<h2 class="widget-title">',
 			'after_title'   => '</h2>',
-		)
-	);
+		) );
+	register_sidebar( 
+		array(
+		'name'          => esc_html__( 'Archives', 'telecom-talk' ),
+		'id'            => 'archives-sidebar',
+		'description'   => esc_html__( 'Add widgets here.', 'telecom-talk' ),
+		'before_widget' => '<section id="%1$s" class="widget %2$s arch">',
+		'after_widget'  => '</section>',
+		'before_title'  => '<h3 class="widget-title"><span>',
+		'after_title'   => '</span></h3>',
+	) );
 }
 add_action( 'widgets_init', 'telecomtalk_widgets_init' );
 
@@ -385,6 +382,15 @@ if ( ! function_exists( 'telecom_talk_setup' ) ) :
 endif;
 
 add_action( 'after_setup_theme', 'telecom_talk_setup' );
+
+add_filter( 'wp_title', 'wpdocs_hack_wp_title_for_home' );
+function wpdocs_hack_wp_title_for_home( $title )
+{
+  	if ( is_single() ) {
+    	$title .= ' - '.date("F jS, Y");
+  	}
+  return $title;
+}
 
 function telecomtalk_is_comment_by_post_author( $comment = null ) {
 
@@ -481,6 +487,7 @@ function telecomtalk_custom_theme_settings() {
 	register_setting( 'telecomtalk-settings-group', 'pan_india_option' );
 	register_setting( 'telecomtalk-settings-group', 'frequency_band_option' );
 	register_setting( 'telecomtalk-settings-group', 'dth_satellite_band_option' );
+	register_setting( 'telecomtalk-settings-group', 'mdcomments_interval' );
 }
 
 add_action( 'admin_menu', 'telecomtalk_register_custom_options_page' );
@@ -523,9 +530,94 @@ function telecomtalk_theme_options_page(){
 			    	<p class="description">Enter the postID</p>
 			    </td>
 			    </tr>
+			    <?php
+			    $most_discussed = get_option('mdcomments_interval','1 week ago');
+			    ?>
+			    <tr valign="top">
+			    <th scope="row">Most Discussed</th>
+			    <td>
+			    	<select name="mdcomments_interval" id="mdc_interval">
+					  	<option value="1 week ago" <?php echo ($most_discussed == '1 week ago')? "selected":"";?>>1 Week ago</option>
+					  	<option value="10 days ago" <?php echo ($most_discussed == '10 days ago')? "selected":"";?>>10 days ago</option>
+					  	<option value="30 days ago" <?php echo ($most_discussed == '30 days ago')? "selected":"";?>>30 Days ago</option>
+					</select>
+			    </td>
+			    </tr>
 			</table>
 			<?php submit_button(); ?>
 		</form>
     </div>
     <?php  
+}
+
+// Author Extra Fields
+add_action( 'show_user_profile', 'show_extra_profile_fields', 10 );
+
+add_action( 'edit_user_profile', 'show_extra_profile_fields', 10 );
+
+function show_extra_profile_fields( $user ) { ?>
+
+	<h3><?php _e('Extra Profile Information'); ?></h3>
+
+	<table class="form-table">
+		<tr>
+			<th><label for="designation"><?php _e('Designation'); ?></label></th>
+			<td>
+				<input type="text" name="designation" id="designation" value="<?php echo esc_attr( get_user_meta( $user->ID, 'designation', true ) ); ?>" class="regular-text" /><br />
+				<span class="description"><?php _e('Please enter the designation.'); ?></span>
+			</td>
+		</tr>
+		<?php
+		$attachment = get_user_meta( $user->ID, 'photo_id', true );
+		$profile_photo = get_user_meta( $user->ID, 'photo_url', true );
+		?>
+		<tr>
+			<th><label for="designation"><?php _e('Upload Photo'); ?></label></th>
+			<td>
+				<div class="upload_file_data">
+			    	<input type="text" class="image_path" name="photo_url" value="<?php echo esc_attr( get_user_meta( $user->ID, 'photo_url', true ) ); ?>" size="50" readonly/>
+			    	<input type="hidden" class="attachment_id" name="photo_id" value="<?php echo esc_attr( get_user_meta( $user->ID, 'photo_id', true ) ); ?>" />
+			    	<input type="button" value="Upload Image" class="upload_image button-primary" class="upload_image"/>
+			    	<div class="show_upload_preview">
+				        <?php if($attachment){
+				        ?>
+				        <img src="<?php echo $profile_photo ; ?>" width="300px" height="auto">
+				        <input type="button" name="remove" value="Remove Image" class="button-primary remove_image"/>
+				        <?php } ?>
+				    </div>
+			    </div>
+			</td>
+		</tr>
+		<tr>
+			<th><label for="social-profile"><?php _e('Twitter Profile Link'); ?></label></th>
+			<td>
+				<input type="text" name="twitterprofilelink" id="twitterprofilelink" value="<?php echo esc_attr( get_user_meta( $user->ID, 'twitterprofilelink', true ) ); ?>" class="regular-text" /><br />
+				<span class="description"><?php _e('Please enter the Twitter Profile Link.'); ?></span>
+			</td>
+		</tr>
+		<tr>
+			<th><label for="social-profile"><?php _e('Linkedin Username'); ?></label></th>
+			<td>
+				<input type="text" name="linkedusername" id="linkedusername" value="<?php echo esc_attr( get_user_meta( $user->ID, 'linkedusername', true ) ); ?>" class="regular-text" /><br />
+				<span class="description"><?php _e('Please enter the Linkedin Username'); ?></span>
+			</td>
+		</tr>
+	</table>
+
+<?php }
+
+add_action( 'personal_options_update', 'save_extra_profile_fields' );
+
+add_action( 'edit_user_profile_update', 'save_extra_profile_fields' );
+
+function save_extra_profile_fields( $user_id ) {
+
+	if ( !current_user_can( 'edit_user', $user_id ) ) return false;
+	
+	update_user_meta( $user_id, 'designation', trim(esc_attr( $_POST['designation'] )) );
+	update_user_meta( $user_id, 'photo_url', trim(esc_attr( $_POST['photo_url'] )) );
+	update_user_meta( $user_id, 'photo_id', trim(esc_attr( $_POST['photo_id'] )) );
+	update_user_meta( $user_id, 'twitterprofilelink', trim(esc_attr( $_POST['twitterprofilelink'] )) );
+	update_user_meta( $user_id, 'linkedusername', trim(esc_attr( $_POST['linkedusername'] )) );
+
 }

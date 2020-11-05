@@ -19,26 +19,26 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 get_header(); ?>
 
-<?php if ( astra_page_layout() == 'left-sidebar' ) : ?>
+	<div id="primary" class="content-area">
+		<main id="main" class="site-main">
 
-	<?php get_sidebar(); ?>
+			<?php
 
-<?php endif ?>
+			// Start the Loop.
+			//while ( have_posts() ) :
+				//the_post();
 
-	<div id="primary" <?php astra_primary_class(); ?>>
+				get_template_part( 'template-parts/content/content', 'page' );
 
-		<?php astra_primary_content_top(); ?>
+				// If comments are open or we have at least one comment, load up the comment template.
+				//if ( comments_open() || get_comments_number() ) {
+					//comments_template();
+				//}
 
-		<?php astra_content_page_loop(); ?>
+			//endwhile; // End the loop.
+			?>
 
-		<?php astra_primary_content_bottom(); ?>
-
+		</main><!-- #main -->
 	</div><!-- #primary -->
-
-<?php if ( astra_page_layout() == 'right-sidebar' ) : ?>
-
-	<?php get_sidebar(); ?>
-
-<?php endif ?>
 
 <?php get_footer(); ?>

@@ -1,21 +1,11 @@
 <?php
-/**
- * The template for displaying all single posts.
- *
- * @link https://developer.wordpress.org/themes/basics/template-hierarchy/#single-post
- *
- * @package Astra
- * @since 1.0.0
+/*
+ * Template Name: State Template
+ * Template Post Type: post
  */
-
-if ( ! defined( 'ABSPATH' ) ) {
-	exit; // Exit if accessed directly.
-}
-
-get_header(); 
-
+get_header();
+// Start the Loop.
 ?>
-
 <div class="wrap">
 	<div id="primary" class="content-area grt">
 		<div class="container">
